@@ -34,7 +34,7 @@ def index():
                 x, y = generate_trochoid(R, h)
                 title = "Trochoid"
                 # Создание графика
-                fig, ax = plt.subplots()
+                fig, ax = plt.subplots(figsize=(12, 8))
                 ax.set_xlim(min(x) - 2 * R, max(x) + 2 * R)
                 ax.set_ylim(min(y) - 8 * R, max(y) + 8 * R)
                 ax.set_xlabel("x", fontsize=14)
@@ -50,7 +50,7 @@ def index():
                 x, y = generate_epicycloid(r, k)
                 title = "Epicycloid"
                 # Создание графика
-                fig, ax = plt.subplots()
+                fig, ax = plt.subplots(figsize=(12, 8))
                 ax.set_xlim(min(x) - 8 * r, max(x) + 8 * r)
                 ax.set_ylim(min(y) - 8 * r, max(y) + 8 * r)
                 ax.set_xlabel("x", fontsize=14)
