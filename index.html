@@ -1,0 +1,255 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Генератор кривых</title>
+    <style>
+        body {
+            font-family: 'Arial', sans-serif;
+            margin: 0;
+            padding: 0;
+            background-color: #e3f2fd; /* Светлый голубой фон */
+            color: #333;
+        }
+        .container {
+            display: flex;
+            height: 100vh;
+        }
+        .sidebar {
+            width: 25%;
+            background: linear-gradient(135deg, #80d0ff, #9c4dcc); /* Градиент от голубого к фиолетовому */
+            padding: 30px;
+            box-shadow: 5px 0 15px rgba(0, 0, 0, 0.1);
+            overflow-y: auto;
+            border-right: 2px solid #ddd;
+            color: white;
+        }
+        .content {
+            width: 75%;
+            padding: 30px;
+            background-color: #f1f8e9; /* Нежный фиолетовый фон */
+            overflow-y: auto;
+        }
+        h3 {
+            margin-bottom: 20px;
+            font-size: 24px;
+            color: #ffffff; /* Белый цвет для заголовков */
+            font-weight: bold;
+        }
+        .form-group {
+            margin-bottom: 25px;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+        }
+        label {
+            font-weight: bold;
+            color: #f1f1f1; /* Светлый цвет для текста меток */
+            margin-bottom: 8px;
+        }
+        input[type="number"] {
+            width: 100%;
+            padding: 12px;
+            border: 1px solid #90caf9; /* Голубой бордер */
+            border-radius: 6px;
+            font-size: 16px;
+            transition: border-color 0.3s, background-color 0.3s;
+        }
+        input[type="number"]:focus {
+            border-color: #2196f3; /* Синий бордер при фокусе */
+            background-color: #e3f2fd; /* Голубой фон при фокусе */
+            outline: none;
+        }
+        button {
+            background-color: #2196f3; /* Синий для кнопок */
+            color: white;
+            padding: 12px 25px;
+            border: none;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 16px;
+            width: 100%;
+            transition: background-color 0.3s, transform 0.3s;
+        }
+        button:hover {
+            background-color: #1976d2; /* Темно-синий при наведении */
+            transform: translateY(-2px);
+        }
+        button:active {
+            background-color: #1565c0; /* Еще темнее при нажатии */
+            transform: translateY(0);
+        }
+        .graph img {
+            max-width: 100%;
+            height: auto;
+            border-radius: 10px;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
+            transition: transform 0.3s;
+        }
+        .graph img:hover {
+            transform: scale(1.05);
+        }
+        .graph {
+            text-align: center;
+            margin-top: 30px;
+        }
+        .sidebar label {
+            display: block;
+            padding: 8px 0;
+            color: #f1f1f1; /* Белый цвет для радиокнопок */
+            font-size: 16px;
+        }
+        .form-group input {
+            font-size: 16px;
+        }
+        .container {
+            flex-direction: row;
+            display: flex;
+        }
+        .sidebar h3 {
+            margin-bottom: 10px;
+            color: #ffffff; /* Белый цвет для заголовка */
+        }
+        .content {
+            overflow-y: auto;
+        }
+        /* Стиль для окна справки */
+        .help-window {
+            display: none;
+            position: fixed;
+            top: 20%;
+            left: 50%;
+            transform: translateX(-50%);
+            background-color: #ffffff;
+            padding: 20px;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+            width: 60%;
+            border-radius: 8px;
+            z-index: 1000;
+        }
+        .help-window h4 {
+            margin-top: 0;
+            color: #2196f3;
+        }
+        .help-window p {
+            color: #333;
+        }
+        .help-window button {
+            background-color: #f44336;
+            border: none;
+            color: white;
+            padding: 10px 20px;
+            margin-top: 20px;
+            cursor: pointer;
+            font-size: 16px;
+            border-radius: 5px;
+        }
+        .help-window button:hover {
+            background-color: #d32f2f;
+        }
+        .help-window button:active {
+            background-color: #c62828;
+        }
+        /* Кнопка вызова справки */
+        .help-button {
+            position: fixed;
+            bottom: 20px;
+            right: 20px;
+            background-color: #2196f3;
+            color: white;
+            border: none;
+            padding: 15px 25px;
+            border-radius: 50%;
+            cursor: pointer;
+            font-size: 24px;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+        }
+        .help-button:hover {
+            background-color: #1976d2;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="sidebar">
+            <form method="POST" id="curve-form">
+                <h3>Выберите кривую</h3>
+                <label>
+                    <input type="radio" name="shape" value="trochoid" checked>
+                    Трохоида
+                </label>
+                <label>
+                    <input type="radio" name="shape" value="epicycloid">
+                    Эпициклоида
+                </label>
+                <div id="trochoid-fields">
+                    <div class="form-group">
+                        <label for="R">Радиус R:</label>
+                        <input type="number" id="R" name="R" step="0.1" value="1" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="h">Параметр h:</label>
+                        <input type="number" id="h" name="h" step="0.1" value="1" required>
+                    </div>
+                </div>
+                <div id="epicycloid-fields" style="display: none;">
+                    <div class="form-group">
+                        <label for="r">Радиус R:</label>
+                        <input type="number" name="r" step="0.1" value="1" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="k">Параметр k:</label>
+                        <input type="number" id="k" name="k" step="0.1" value="1" required>
+                    </div>
+                </div>
+                <button type="submit">Построить</button>
+            </form>
+        </div>
+        <div class="content">
+            {% if graph_html %}
+                <div class="graph">
+                    <img src="data:image/gif;base64,{{ graph_html }}" alt="Generated Curve">
+                </div>
+            {% endif %}
+        </div>
+    </div>
+
+    <!-- Окно справки -->
+    <div id="help-window" class="help-window">
+        <h4>Справка</h4>
+        <p>Этот генератор кривых позволяет вам создавать различные математические кривые, такие как трохоиды и эпициклоиды. Выберите тип кривой и введите соответствующие параметры для построения кривой.</p>
+        <p>При нажатии на кнопку "Построить" будет отображена сгенерированная кривая в правой части экрана.</p>
+        <button onclick="closeHelpWindow()">Закрыть</button>
+    </div>
+
+    <!-- Кнопка для открытия окна справки -->
+    <button id="help-button" class="help-button" onclick="openHelpWindow()">?</button>
+
+    <script>
+        const trochoidFields = document.getElementById('trochoid-fields');
+        const epicycloidFields = document.getElementById('epicycloid-fields');
+        const radios = document.querySelectorAll('input[name="shape"]');
+
+        radios.forEach(radio => {
+            radio.addEventListener('change', () => {
+                if (radio.value === 'trochoid') {
+                    trochoidFields.style.display = 'block';
+                    epicycloidFields.style.display = 'none';
+                } else {
+                    trochoidFields.style.display = 'none';
+                    epicycloidFields.style.display = 'block';
+                }
+            });
+        });
+
+        function openHelpWindow() {
+            document.getElementById('help-window').style.display = 'block';
+        }
+
+        function closeHelpWindow() {
+            document.getElementById('help-window').style.display = 'none';
+        }
+    </script>
+</body>
+</html>
